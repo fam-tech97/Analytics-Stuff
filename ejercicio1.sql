@@ -1,1 +1,0 @@
--- Mi primer ejercicio SQL

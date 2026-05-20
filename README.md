@@ -1,2 +1,2 @@
-# SQL---Practice
-Ejercicios de SQL para entrevistas
+# Analyst Data Stuff
+Ejercicios para practicar, proyectos, etc

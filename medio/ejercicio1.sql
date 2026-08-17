@@ -1,38 +1,33 @@
---Crear una CTE tanto para page_loads como page_exits
-
-with loads as (
+with page_load as (
     select
         user_id,
-        cast(timestamp as DATE) as day,
-        max(timestamp) as load_time
+        cast(timestamp as date) as dia,
+        max(timestamp) as fecha
     from facebook_web_log
     where action = 'page_load'
-    group by user_id, cast(timestamp as DATE)
+    group by user_id, cast(timestamp as date)
 ),
 
-exits as (
+page_exit as (
     select
         user_id,
-        cast(timestamp as DATE) as day,
-        min(timestamp) as exit_time
+        cast(timestamp as date) as dia,
+        min(timestamp) as fecha
     from facebook_web_log
     where action = 'page_exit'
-    group by user_id, cast(timestamp as DATE)
+    group by user_id, cast(timestamp as date)
 ),
-    
-diff as (    
+
+full_data as (
     select
-        L.user_id as user_id,
-        L.load_time as load_time,
-        E.exit_time as exit_time,
-        datediff(second, L.load_time, E.exit_time) as time_difference
-    from loads L
-    inner join exits E on E.user_id = L.user_id and E.day = L.day
-    where L.load_time < E.exit_time
+        PL.user_id as user_id,
+        datediff(second, PL.fecha, PE.fecha) as diferencia
+    from page_load PL
+    inner join page_exit PE on PL.user_id = PE.user_id and PL.dia = PE.dia
 )
 
 select
-user_id,
-avg(1.0 * time_difference) as avg_session_duration
-from diff
+    user_id,
+    avg(cast(diferencia as decimal)) as avg_session_duration
+from full_data
 group by user_id

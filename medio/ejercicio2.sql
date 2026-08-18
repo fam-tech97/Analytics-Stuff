@@ -7,7 +7,7 @@ with sents as (
     where action = 'sent'
 ),
 
-accepted as (
+accepteds as (
     select
         date,
         user_id_sender,
@@ -17,10 +17,9 @@ accepted as (
 )
 
 select
-S.date,
-count(A.user_id_receiver)/CAST(count(S.user_id_sender) AS decimal) AS percentage_acceptance
-from sents S
-left join accepted A
-on S.user_id_sender = A.user_id_sender
+    S.date as date,
+    count(A.user_id_receiver) / cast(count(S.user_id_sender) as decimal) as percentage_acceptance
+from accepteds A
+right join sents S on S.user_id_sender = A.user_id_sender
 and S.user_id_receiver = A.user_id_receiver
 group by S.date

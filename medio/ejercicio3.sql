@@ -1,30 +1,29 @@
 with clean_data as (
     select distinct
         user_id,
-        cast(created_at as DATE) as purchase_date
+        cast(created_at as date) as fecha
     from amazon_transactions
     where revenue > 0
 ),
 
-ranking_data as (
+ranking as (
     select
         user_id,
-        purchase_date,
-        RANK() OVER(partition by user_id order by purchase_date) as ranking
+        fecha,
+        rank() over (partition by user_id order by fecha) as ranking
     from clean_data
 ),
 
-onlytwo as (
+user_dates as (
     select
         user_id,
-        max(case when ranking = 1 then purchase_date end) as purchase_date,
-        max(case when ranking = 2 then purchase_date end) as purchase_date2
-    from ranking_data
-    where ranking between 1 and 2
+        max(case when ranking = 1 then fecha end) as primera_fecha,
+        max(case when ranking = 2 then fecha end) as segunda_fecha
+    from ranking
     group by user_id
 )
 
-select
+select distinct
 user_id
-from onlytwo
-where datediff(day, purchase_date, purchase_date2) between 1 and 7
+from user_dates
+where datediff(day, primera_fecha, segunda_fecha) between 1 and 7

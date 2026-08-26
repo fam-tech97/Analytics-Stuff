@@ -3,7 +3,7 @@ with shipable as (
         O.id as OrderId
     from orders O
     inner join customers C on O.cust_id = C.id
-    where C.address is not null or C.address <> ''
+    where C.address is not null and C.address <> ''
 )
 
 select 

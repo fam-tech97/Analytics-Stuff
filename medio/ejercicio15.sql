@@ -4,53 +4,118 @@
 
 -- PROBLEMA
 --
--- Encontrar el top 5 de negocios con mas reseñas. 
--- Para aquellos negocios que estén en empate en reseñas, reciben el mismo número de ranking.
--- Una vez haya un empate en el ranking de dos negocios, se saltará al siguiente número.
--- Por ejemplo si hay 2 negocios que tienen el puesto 2, el siguiente será el número 4.
+-- Encontrar el top 5 de negocios con más reseñas.
+-- Para aquellos negocios que estén empatados en número de reseñas,
+-- reciben el mismo número de ranking y el siguiente ranking se salta
+-- tantos puestos como negocios haya en el empate.
 --
--- Teniendo en cuenta la condición que propone el ejercicio, he usado la función de ventana rank().
--- Gracias a esto, aquellos que hayan empatado, el siguiente negocio tendrá el siguiente número, tal y como pide el ejercicio.
+-- Ejemplo:
+-- Negocio A -> 1
+-- Negocio B -> 2
+-- Negocio C -> 2
+-- Negocio D -> 4
+--
+-- Teniendo en cuenta la condición que propone el ejercicio,
+-- he utilizado la función de ventana RANK().
+-- RANK() asigna el mismo ranking a los valores empatados
+-- y deja huecos en la numeración posterior.
 
 
 -- ============================================================
 -- SOLUCIÓN
 -- ============================================================
 
-with business_rank as (
-    select
+WITH business_rank AS (
+    SELECT
         name,
         review_count,
-        rank() over(order by review_count desc) as ranking
-    from yelp_business
+        RANK() OVER(ORDER BY review_count DESC) AS ranking
+    FROM yelp_business
 )
 
-select name, review_count from business_rank where ranking <= 5
+SELECT
+    name,
+    review_count
+FROM business_rank
+WHERE ranking <= 5;
 
 
 -- ============================================================
 -- ENFOQUE DE NEGOCIO
 -- ============================================================
 
--- La compañía de Yelp quiere encontrar aquellos negocios que tengan más reseñas.
--- Sin embargo en este ejercicio solo quieren un top 5, estas reseñas pueden ser tanto positivas como negativas.
--- Es posible que quieran examinar bien los negocios con mas reseñas, viendo qué pueden analizar y sacar de ahí.
--- Hay que tener en cuenta que, aunque un negocio tenga muchas reseñas, puede darse el caso de que en su totalidad sean negativas.
+-- Yelp quiere identificar los negocios que generan un mayor volumen
+-- de reseñas dentro de la plataforma.
+--
+-- Tener muchas reseñas puede indicar un alto volumen de interacción,
+-- pero no necesariamente significa que el negocio tenga una buena
+-- reputación o que tenga un mayor impacto.
+--
+-- Las reseñas pueden ser tanto positivas como negativas, por lo que
+-- este análisis únicamente nos muestra el volumen y no la calidad
+-- de la experiencia de los clientes.
+--
+-- Una vez identificados estos negocios, Yelp podría analizar qué
+-- características tienen, qué tipo de reseñas reciben y qué factores
+-- pueden explicar que generen un volumen tan elevado de interacción.
 
--- Una vez identificadas aquellos negocios con mas reseñas, se querrá investigar en qué se puede mejorar.
 
 -- ============================================================
 -- PREGUNTAS ADICIONALES
 -- ============================================================
 
--- 1. ¿Por qué la empresa quiere saber cuales son los top 5 negocios en base a las reseñas? Seguramente porque quieren ver aquellos negocios que tienen más impacto o visibilidad.
+-- 1. ¿Por qué Yelp quiere identificar los negocios con mayor número
+--    de reseñas?
+--
+--    Podría utilizar esta información para estudiar los negocios
+--    con mayor volumen de interacción y posteriormente analizar
+--    qué características tienen en común.
 
--- 2. ¿Se hará un análisis de qué tipo de reseñas tienen esos negocios con mayor número de reseñas? Como había comentado, puede haber mas reseñas negativas que positivas, de las cuales se puede aprender.
 
--- 3. ¿Cual será la media de reseñas positivas y negativas de estos 5 negocios?
+-- 2. ¿Qué tipo de reseñas reciben estos negocios?
+--
+--    Analizar el porcentaje de reseñas positivas y negativas para
+--    comprobar si los negocios con mayor volumen de reseñas tienen
+--    también una buena valoración.
+
+
+-- 3. ¿Qué porcentaje de las reseñas de cada negocio son negativas?
+--
+--    Es más útil analizar el porcentaje que únicamente el número
+--    absoluto, ya que los negocios tienen diferentes cantidades
+--    totales de reseñas.
+
+
+-- 4. ¿Qué valoración media tienen estos negocios?
+--
+--    De esta forma podemos diferenciar entre negocios con muchas
+--    reseñas y negocios con buena reputación.
+
+
+-- 5. ¿Qué porcentaje de todas las reseñas de Yelp concentran estos
+--    cinco negocios?
+--
+--    Esto permitiría analizar si existe una alta concentración de
+--    reseñas en un pequeño grupo de negocios.
+
+
+-- 6. ¿Qué características tienen en común los negocios que reciben
+--    un mayor volumen de reseñas?
+--
+--    Por ejemplo: categoría, ciudad, número de años en la plataforma,
+--    valoración media, etc.
+
 
 -- ============================================================
 -- QUÉ APRENDÍ
 -- ============================================================
 
--- * Usar la función de ventana rank() que es la que hace un salto entre 2 sujetos que tengan el mismo ranking.
+-- * Utilizar la función de ventana RANK().
+-- * RANK() asigna el mismo ranking a los valores empatados y deja
+--   huecos en la numeración posterior.
+-- * Utilizar una CTE para calcular primero el ranking y posteriormente
+--   filtrar los resultados.
+-- * Un número elevado de reseñas representa volumen de interacción,
+--   pero no necesariamente una buena reputación.
+-- * Al comparar negocios con diferente número de reseñas, puede ser
+--   necesario utilizar porcentajes en lugar de valores absolutos.
